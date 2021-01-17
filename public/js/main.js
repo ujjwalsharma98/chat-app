@@ -1,5 +1,8 @@
-const chatForm = document.getElementById('chat-form')
-const chatMessages = document.querySelector('.chat-messages')
+const chatForm = document.getElementById('chat-form');
+const chatMessages = document.querySelector('.chat-messages');
+const roomName = document.getElementById('room-name');
+const userList = document.getElementById('users');
+
 
 // using Qs library to get params from URL
 const { username, room } = Qs.parse(location.search, {
@@ -9,6 +12,12 @@ const { username, room } = Qs.parse(location.search, {
 const socket = io()
 
 socket.emit('joinRoom', { username, room })
+
+// Users & Room info
+socket.on('roomUsers', ({ room, users }) => {
+    outputRoomName(room);
+    outputUser(users);
+})
 
 socket.on('message', message => {
     console.log("******", message)
@@ -36,4 +45,16 @@ function outputMessage(message) {
         ${message.text}
     </p>`
     document.querySelector('.chat-messages').appendChild(div)
+}
+
+// Add Room name to DOM
+function outputRoomName(room) {
+    roomName.innerText = room;
+}
+
+// Add Users to DOM
+function outputUser(users) {
+    userList.innerHTML = `
+        ${users.map(user => `<li>${user.username}</li>`).join('')}
+    `;
 }
